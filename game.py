@@ -1,3 +1,4 @@
+from email.policy import default
 import pygame
 import pytmx
 import pyscroll
@@ -9,21 +10,21 @@ class Game:
     #constructeur
     def __init__(self): #self = this
         #attribut screen => creer la fenetre du jeu
+        #self = objet courant dans lequel on met des trucs
         self.screen = pygame.display.set_mode((800, 600)) #taille de le fenetre
         pygame.display.set_caption("LOTR version wish") #nom du jeu
         
         #chargement des données TMX
-        tmx_data = pytmx.load_pygame('map/basicMap.tmx')
+        tmx_data = pytmx.util_pygame.load_pygame('map/basicMap.tmx')
         
         #faire la source de données pour la map
-        map_data = pyscroll.TiledMapData(tmx_data)
+        map_data = pyscroll.data.TiledMapData(tmx_data)
         
-        #faire la couche de scroll pour déplacer la map
-        screen_size = (400, 400)
-        map_layer = pyscroll.BufferedRenderer(map_data, screen_size)
+        #on charge les différentes calques créées dans Tiled
+        map_layer = pyscroll.orthographic.BufferedRenderer(map_data, self.screen.get_size())
         
-        #make the PyGame SpriteGroup with a scrolling map
-        group = pyscroll.PyscrollGroup(map_layer=map_layer)
+        #dessiner le groupe de caloques
+        self.group = pyscroll.PyscrollGroup(map_layer=map_layer, default_layer=1)
         
      
     #methodes   
@@ -32,6 +33,9 @@ class Game:
         running = True #par defaut, le fenetre du jeu est active
 
         while running:
+            #on dessine les calques sur le screen
+            self.group.draw(self.screen)
+            pygame.display.flip()
             for event in pygame.event.get():
                 if event.type == pygame.QUIT: #QUIT = variable = code croix
                     running = False
